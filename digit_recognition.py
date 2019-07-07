@@ -35,26 +35,24 @@ while True:
     circles = cv2.HoughCircles(gray, cv2.HOUGH_GRADIENT,1,10,param1=50,param2=30,minRadius=20,maxRadius=30)
     #TO check whether there is any circle detect or not with given min distance 
     if circles is not None:
-					# convert the (x, y) coordinates and radius of the circles to integers
-					circles = np.round(circles[0, :]).astype("int")
-					# loop over the (x, y) coordinates and radius of the circles
-					for (x, y, r) in circles:
-						cen_pts.appendleft((x,y)) #append centers
-
-						for i in range(1, len(cen_pts)):
-
-									if cen_pts[i - 1] is None or cen_pts[i] is None:
-										continue
-									#draw circle with x,y cordinates and  r radius
-									cv2.circle(img_rect, (x, y), r, (0, 255, 0), 4)
-									#for center of circle draw a point circle with radius 3
-									cv2.circle(img_rect, (x,y),3, (0, 128, 255), 4)
-									#plotting line using two points
-									cv2.line(img_rect, cen_pts[i - 1], cen_pts[i], (0, 0, 255), 3) 
-									#plotting line using two points in blackbackground image
-									cv2.line(black_pic, cen_pts[i - 1], cen_pts[i], (255, 255, 255), 5)
-									#replacing the slice of output image with the img_rect  
-									img_out[200:475,200:475] = img_rect
+    	# convert the (x, y) coordinates and radius of the circles to integers
+    	circles = np.round(circles[0, :]).astype("int")
+		# loop over the (x, y) coordinates and radius of the circles
+    	for (x, y, r) in circles:
+    	    cen_pts.appendleft((x,y)) #append centers
+    	    for i in range(1, len(cen_pts)):
+    	    	if cen_pts[i - 1] is None or cen_pts[i] is None:
+    	    		continue
+				#draw circle with x,y cordinates and  r radius
+    	    	cv2.circle(img_rect, (x, y), r, (0, 255, 0), 4)
+				#for center of circle draw a point circle with radius 3
+    	    	cv2.circle(img_rect, (x,y),3, (0, 128, 255), 4)
+				#plotting line using two points
+    	    	cv2.line(img_rect, cen_pts[i - 1], cen_pts[i], (0, 0, 255), 3) 
+			    #plotting line using two points in blackbackground image
+    	    	cv2.line(black_pic, cen_pts[i - 1], cen_pts[i], (255, 255, 255), 5)
+				#replacing the slice of output image with the img_rect  
+    	    	img_out[200:475,200:475] = img_rect
     #converting from rgb value (3 color plane to one plane graylevel image)
     black_pic2gray = cv2.cvtColor(black_pic, cv2.COLOR_BGR2GRAY)
     GB = cv2.GaussianBlur(black_pic2gray, (3, 3), 0)
@@ -64,25 +62,25 @@ while True:
     blackpic_cnts = cv2.findContours(threshold.copy(), cv2.RETR_TREE, cv2.CHAIN_APPROX_SIMPLE)[1]
     #print([cv2.contourArea(i) for i in blackpic_cnts[1:]])
     if len(blackpic_cnts) >1:
-                    cnt = max(blackpic_cnts, key=cv2.contourArea)
-                    #print("area",cv2.contourArea(cnt))
-                    if cv2.contourArea(cnt) >2000:
-                        x, y, w, h = cv2.boundingRect(cnt)
-                        cv2.rectangle(img_rect,(x,y),(x+w,y+h),(0,255,0),2)
+    	cnt = max(blackpic_cnts, key=cv2.contourArea)
+        #print("area",cv2.contourArea(cnt))
+    	if cv2.contourArea(cnt) >2000:
+            x, y, w, h = cv2.boundingRect(cnt)
+            cv2.rectangle(img_rect,(x,y),(x+w,y+h),(0,255,0),2)
 
-                        digit_pic = black_pic2gray[y:y + h, x:x + w]
-                        #cv2.imshow("digit_pic",digit_pic)
-                        image = cv2.resize(digit_pic, (28, 28))
-                        #cv2.imshow("image_re",image)
-                        image = np.array(image)
-                        image = image.flatten()
-                        image = image.reshape(image.shape[0],1)
-                        image = image.reshape(1,28,28,1)
+            digit_pic = black_pic2gray[y:y + h, x:x + w]
+            #cv2.imshow("digit_pic",digit_pic)
+            image = cv2.resize(digit_pic, (28, 28))
+            #cv2.imshow("image_re",image)
+            image = np.array(image)
+            image = image.flatten()
+            image = image.reshape(image.shape[0],1)
+            image = image.reshape(1,28,28,1)
                         
-                        pred = model.predict(image)
-                        pred_value = pred.argmax()
-                        cv2.putText(img_out, "Prediction : " + str(pred_value), (200, 190),
-                    				cv2.FONT_HERSHEY_SIMPLEX, 0.7, (0, 0, 255), 2)
+            pred = model.predict(image)
+            pred_value = pred.argmax()
+            cv2.putText(img_out, "Prediction : " + str(pred_value), (200, 190),
+                    	cv2.FONT_HERSHEY_SIMPLEX, 0.7, (0, 0, 255), 2)
      
     
     cv2.imshow("Frame", img_out)
